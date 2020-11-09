@@ -127,6 +127,19 @@ module MainControlUnit(
             regWrite <= 1'b0;
         end
         
+        else
+        begin
+            immSel <= 2'b00;
+            ALUop <= 2'b00;
+            ALUSrc <= 1'b0;
+            branch <= 1'b0;
+            jump <= 1'b0;
+            memRead <= 1'b0;
+            memWrite <= 1'b0;
+            memToReg <= 1'b0;
+            regWrite <= 1'b0;
+        end
+        
         //else => unsupported instruction format
         
     end

@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06.11.2020 12:02:10
+// Create Date: 08.11.2020 07:57:20
 // Design Name: 
-// Module Name: IF_ID_PipelineReg
+// Module Name: MUX_3_1
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,28 +20,34 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IF_ID_PipelineReg(
-    input clk,
-    input clk_gate,
-    input rst_n,
-    input [31:0] instruction_in,
-    output [31:0] instruction_out
+module MUX_3_1(
+    input [31:0] in0,
+    input [31:0] in1,
+    input [31:0] in2,
+    input [1:0] select,
+    output reg [31:0] out
     );
     
-    reg [31 : 0] instruction_save;
-    
-    assign instruction_out = instruction_save;
-    
-    always@(posedge clk)
+    always@(*)
     begin
-        if(rst_n == 1'b0)
+        if(select == 2'b00)
         begin
-            instruction_save <= 0;
+            out <= in0;
         end
         
-        else if(clk_gate == 1'b1)
+        else if(select == 2'b01)
         begin
-            instruction_save <= instruction_in;
+            out <= in1;
+        end
+        
+        else if(select == 2'b10)
+        begin
+            out <= in2;
+        end
+        
+        else
+        begin
+            out <= 0;
         end
     end
     

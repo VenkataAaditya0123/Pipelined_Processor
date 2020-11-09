@@ -22,6 +22,7 @@
 
 module ProgramCounter_Register(
     input clk,
+    input clk_gate,
     input rst_n,
     output reg [31:0] PC
     );
@@ -35,7 +36,7 @@ module ProgramCounter_Register(
             PC <= 0;
         end
         
-        else
+        else if(clk_gate == 1'b1)
         begin
             PC <= PC + 4;
         end

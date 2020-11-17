@@ -33,7 +33,7 @@ module Stall_Detection_Control_Unit(
     always@(*)
     begin
         //STALL condition
-        if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) )
+        if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) && (ID_EX_rd != 5'b00000))
         begin
             clk_gate <= 1'b0;
         end
@@ -50,7 +50,7 @@ module Stall_Detection_Control_Unit(
     always@(*)
     begin
         //STALL condition
-        if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) )
+        if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) && (ID_EX_rd != 5'b00000) )
         begin
             contol_signals_select <= 1'b0;
         end

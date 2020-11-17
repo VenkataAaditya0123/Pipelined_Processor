@@ -74,7 +74,7 @@ module RegisterFile(
             registers[31] <= 0;
         end
         
-        else if(regWrite == 1'b1)
+        else if(regWrite == 1'b1 && write_addr != 5'b00000)
         begin
             registers[write_addr] <= write_data;
         end

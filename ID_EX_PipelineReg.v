@@ -39,6 +39,7 @@ module ID_EX_PipelineReg(
     input [31:0] immData_in,
     input [6 : 0] funct7_in,
     input [2 : 0] funct3_in,
+    input [31 : 0] PC_in,
     output ALUSrc_out,
     output [1:0] ALUop_out,
     output branch_out,
@@ -54,7 +55,8 @@ module ID_EX_PipelineReg(
     output [4:0] rd_out,
     output [31:0] immData_out,
     output [6 : 0] funct7_out,
-    output [2 : 0] funct3_out
+    output [2 : 0] funct3_out,
+    output [31 : 0] PC_out
     );
     
     reg ALUSrc_save;
@@ -73,6 +75,7 @@ module ID_EX_PipelineReg(
     reg [31:0] immData_save;
     reg [6 : 0] funct7_save;
     reg [2 : 0] funct3_save;
+    reg [31 : 0] PC_save;
     
     assign ALUSrc_out = ALUSrc_save;
     assign ALUop_out = ALUop_save;
@@ -90,6 +93,7 @@ module ID_EX_PipelineReg(
     assign immData_out = immData_save;
     assign funct7_out = funct7_save;
     assign funct3_out = funct3_save;
+    assign PC_out = PC_save;
     
     always@(posedge clk)
     begin
@@ -111,6 +115,7 @@ module ID_EX_PipelineReg(
             immData_save <= 0;
             funct7_save <= 0;
             funct3_save <= 0;
+            PC_save <= 0;
         end
         
         else
@@ -131,6 +136,7 @@ module ID_EX_PipelineReg(
             immData_save <= immData_in;
             funct7_save <= funct7_in;
             funct3_save <= funct3_in;
+            PC_save <= PC_in;
         end
     end
     

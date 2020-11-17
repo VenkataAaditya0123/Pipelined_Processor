@@ -28,11 +28,15 @@ module MEM_WB_PiplelineReg(
     input [4:0] rd_in,
     input [31:0] dmem_read_data_in,
     input [31:0] ALU_result_in,
+    input jump_in,
+    input [31 : 0] PC_in,
     output memToReg_out,
     output regWrite_out,
     output [4 : 0] rd_out,
     output [31:0] dmem_read_data_out,
-    output [31:0] ALU_result_out
+    output [31:0] ALU_result_out,
+    output jump_out,
+    output [31 : 0] PC_out
     );
     
     reg memToReg_save;
@@ -40,12 +44,16 @@ module MEM_WB_PiplelineReg(
     reg [4:0] rd_save;
     reg [31:0] dmem_read_data_save;
     reg [31:0] ALU_result_save;
+    reg jump_save;
+    reg [31 : 0] PC_save;
     
     assign memToReg_out = memToReg_save;
     assign regWrite_out = regWrite_save;
     assign rd_out = rd_save;
     assign dmem_read_data_out = dmem_read_data_save;
     assign ALU_result_out = ALU_result_save;
+    assign jump_out = jump_save;
+    assign PC_out = PC_save;
     
     always@(posedge clk)
     begin
@@ -57,6 +65,8 @@ module MEM_WB_PiplelineReg(
             rd_save <= 1'b0;
             dmem_read_data_save <= 0;
             ALU_result_save <= 0;
+            jump_save <= 1'b0;
+            PC_save <= 0;
         end
         
         else
@@ -66,6 +76,8 @@ module MEM_WB_PiplelineReg(
             rd_save <= rd_in;
             dmem_read_data_save <= dmem_read_data_in;
             ALU_result_save <= ALU_result_in;
+            jump_save <= jump_in;
+            PC_save <= PC_in;
         end
         
     end

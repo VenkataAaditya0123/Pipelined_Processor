@@ -31,7 +31,8 @@ module MainControlUnit(
     output reg memRead,
     output reg memWrite,
     output reg memToReg,
-    output reg regWrite
+    output reg regWrite,
+    output reg [1 : 0] PCSrc
     );
     
     always@(*)
@@ -47,6 +48,7 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b0;
             regWrite <= 1'b0;
+            PCSrc <= 2'b00;
         end
         
         else if(opcode == 7'b0110011) //R-type
@@ -60,6 +62,7 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b0;
             regWrite <= 1'b1;
+            PCSrc <= 2'b00;
         end
         
         else if(opcode == 7'b0000011) //I-type --->>> lw
@@ -73,6 +76,7 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b1;
             regWrite <= 1'b1;
+            PCSrc <= 2'b00;
         end
         
         else if(opcode == 7'b0010011) //I-type --->>> addi
@@ -86,6 +90,7 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b0;
             regWrite <= 1'b1;
+            PCSrc <= 2'b00;
         end
         
         else if(opcode == 7'b0100011) //S-type --->>> sw
@@ -99,6 +104,7 @@ module MainControlUnit(
             memWrite <= 1'b1;
             memToReg <= 1'b0; //1'bX
             regWrite <= 1'b0;
+            PCSrc <= 2'b00;
         end
         
         else if(opcode == 7'b1100011) //SB-type --->>> beq
@@ -112,9 +118,10 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b0; //1'bX
             regWrite <= 1'b0;
+            PCSrc <= 2'b10;
         end
         
-        else if(opcode == 7'b1101111)
+        else if(opcode == 7'b1101111) //J-type --->>> lmp
         begin
             immSel <= 2'b11;
             ALUop <= 2'b00; //2'bXX
@@ -124,7 +131,8 @@ module MainControlUnit(
             memRead <= 1'b0;
             memWrite <= 1'b0;
             memToReg <= 1'b0; //1'bX
-            regWrite <= 1'b0;
+            regWrite <= 1'b1;
+            PCSrc <= 2'b01;
         end
         
         else
@@ -138,6 +146,7 @@ module MainControlUnit(
             memWrite <= 1'b0;
             memToReg <= 1'b0;
             regWrite <= 1'b0;
+            PCSrc <= 2'b00;
         end
         
         //else => unsupported instruction format

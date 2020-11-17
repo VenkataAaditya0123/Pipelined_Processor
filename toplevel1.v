@@ -129,18 +129,35 @@ module toplevel1(
     wire memToReg_ctrl_signals_MUX_out;
     wire regWrite_ctrl_signals_MUX_out;
     
+    
+    wire [1 : 0] PCSrc;
+    
+    wire [31 : 0] PC_next;
+    
+    wire [31 : 0] PC_EX;
+    wire [31 : 0] PC_MEM;
+    
+    wire jump_WB;
+    wire [31 : 0] PC_WB;
+    
+    wire [31 : 0] PC_ID;
+    
+    wire [31 : 0] ALUres_PC_sel_MUX_output;
+    
     //wire clk_mod = clk & clk_gate;
     
     
     
     //ProgramCounter_Register i1(.clk(clk), .rst_n(rst_n), .PC(PC));
-    ProgramCounter_Register i1(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .PC(PC));
+    //ProgramCounter_Register i1(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .PC_next(PC_next), .PC(PC));
+    ProgramCounter_Register i1(.clk_gate(clk_gate), .rst_n(rst_n), .PC_next(PC_next), .PC(PC));
     
     
     InstructionMemory i2(.rst_n(rst_n), .PC(PC), .instrCode(instrCode));
     
     //IF_ID_PipelineReg i3(.clk(clk), .rst_n(rst_n), .instruction_in(instrCode), .instruction_out(instruction));
-    IF_ID_PipelineReg i3(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .instruction_in(instrCode), .instruction_out(instruction));
+    IF_ID_PipelineReg i3(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .instruction_in(instrCode), .PC_in(PC),
+                         .instruction_out(instruction), .PC_out(PC_ID));
     
     
     
@@ -154,7 +171,7 @@ module toplevel1(
     
     MainControlUnit i4(.rst_n(rst_n), .opcode(instruction[6 : 0]), .immSel(immSel), .ALUop(ALUop), .ALUSrc(ALUSrc),
                        .branch(branch), .jump(jump), .memRead(memRead), .memWrite(memWrite),
-                       .memToReg(memToReg), .regWrite(regWrite));
+                       .memToReg(memToReg), .regWrite(regWrite), .PCSrc(PCSrc));
                        
                        
                        
@@ -185,6 +202,13 @@ module toplevel1(
                     .read_data1(read_data1), .read_data2(read_data2));
                     
                     
+                    
+    //PC_Select_MUX i21(.PC_curr(PC), .immData(immData), .PCSrc(PCSrc), .PC_next(PC_next));
+    PC_Select_MUX i21(.PC_curr(PC_ID), .immData(immData), .PCSrc(PCSrc), .PC_next(PC_next));
+                    
+                    
+                    
+                    
     /*ID_EX_PipelineReg i7(.clk(clk), .rst_n(rst_n), .ALUSrc_in(ALUSrc), .ALUop_in(ALUop), .branch_in(branch),
                          .jump_in(jump), .memRead_in(memRead), .memWrite_in(memWrite), .memToReg_in(memToReg),
                          .regWrite_in(regWrite), .read_data1_in(read_data1), .read_data2_in(read_data2),
@@ -201,12 +225,12 @@ module toplevel1(
                          .jump_in(jump_ctrl_signals_MUX_out), .memRead_in(memRead_ctrl_signals_MUX_out), .memWrite_in(memWrite_ctrl_signals_MUX_out), .memToReg_in(memToReg_ctrl_signals_MUX_out),
                          .regWrite_in(regWrite_ctrl_signals_MUX_out), .read_data1_in(read_data1), .read_data2_in(read_data2),
                          .rs1_in(instruction[19 : 15]), .rs2_in(instruction[24 : 20]), .rd_in(instruction[11 : 7]),
-                         .immData_in(immData), .funct7_in(instruction[31 : 25]), .funct3_in(instruction[14 : 12]),
+                         .immData_in(immData), .funct7_in(instruction[31 : 25]), .funct3_in(instruction[14 : 12]), .PC_in(PC_ID),
                          .ALUSrc_out(ALUSrc_EX), .ALUop_out(ALUop_EX), .branch_out(branch_EX), .jump_out(jump_EX),
                          .memRead_out(memRead_EX), .memWrite_out(memWrite_EX), .memToReg_out(memToReg_EX),
                          .regWrite_out(regWrite_EX), .read_data1_out(read_data1_EX), .read_data2_out(read_data2_EX),
                          .rs1_out(rs1_EX), .rs2_out(rs2_EX), .rd_out(rd_EX), .immData_out(immData_EX),
-                         .funct7_out(funct7_EX), .funct3_out(funct3_EX));                     
+                         .funct7_out(funct7_EX), .funct3_out(funct3_EX), .PC_out(PC_EX));                     
                          
                          
                          
@@ -220,13 +244,17 @@ module toplevel1(
                                 
                                 
                                 
-    MUX_3_1 i17(.in0(read_data1_EX), .in1(ALU_result_MEM), .in2(memToReg_Mux_output), .select(ForwardingMUX1_select),
+    //MUX_3_1 i17(.in0(read_data1_EX), .in1(ALU_result_MEM), .in2(memToReg_Mux_output), .select(ForwardingMUX1_select),
+    //            .out(MUX_3_1_output_1)); //read_data1 --->>> operand1 in ALU
+    MUX_3_1 i17(.in0(read_data1_EX), .in1(ALUres_PC_sel_MUX_output), .in2(memToReg_Mux_output), .select(ForwardingMUX1_select),
                 .out(MUX_3_1_output_1)); //read_data1 --->>> operand1 in ALU
                 
                 
                 
     
-    MUX_3_1 i18(.in0(read_data2_EX), .in1(ALU_result_MEM), .in2(memToReg_Mux_output), .select(ForwardingMUX2_select),
+    //MUX_3_1 i18(.in0(read_data2_EX), .in1(ALU_result_MEM), .in2(memToReg_Mux_output), .select(ForwardingMUX2_select),
+    //            .out(MUX_3_1_output_2)); //read_data2 --->>> operand2 in ALU
+    MUX_3_1 i18(.in0(read_data2_EX), .in1(ALUres_PC_sel_MUX_output), .in2(memToReg_Mux_output), .select(ForwardingMUX2_select),
                 .out(MUX_3_1_output_2)); //read_data2 --->>> operand2 in ALU
                                 
                                 
@@ -252,7 +280,7 @@ module toplevel1(
             
             
             
-    PC_plus_X_adder i11(.PC(PC), .immData(immData_EX), .PC_plus_X(PC_plus_X));
+    PC_plus_X_adder i11(.PC(PC), .immData(immData_EX), .PC_plus_X(PC_plus_X)); //can be removed -> WRONG PC is being fed
             
             
     
@@ -268,11 +296,18 @@ module toplevel1(
     EX_MEM_PipelineReg i12(.clk(clk), .rst_n(rst_n), .PC_plus_X_in(PC_plus_X), .ALU_result_in(ALU_result), 
                            .zero_in(ALU_zero), .read_data2_in(MUX_3_1_output_2), .rd_in(rd_EX), .branch_in(branch_EX),
                            .jump_in(jump_EX), .memRead_in(memRead_EX), .memWrite_in(memWrite_EX), 
-                           .memToReg_in(memToReg_EX), .regWrite_in(regWrite_EX), 
+                           .memToReg_in(memToReg_EX), .regWrite_in(regWrite_EX), .PC_in(PC_EX), 
                            .PC_plus_X_out(PC_plus_X_MEM), .ALU_result_out(ALU_result_MEM), .zero_out(zero_MEM),
                            .read_data2_out(read_data2_MEM), .rd_out(rd_MEM), .branch_out(branch_MEM), .jump_out(jump_MEM),
                            .memRead_out(memRead_MEM), .memWrite_out(memWrite_MEM), .memToReg_out(memToReg_MEM), 
-                           .regWrite_out(regWrite_MEM));
+                           .regWrite_out(regWrite_MEM), .PC_out(PC_MEM));
+                           
+                           
+                           
+                           
+    
+    ALUres_PC_sel_MUX i22(.ALU_result(ALU_result_MEM), .PC(PC_MEM), .jump(jump_MEM),
+                                 .ALUres_PC_sel_MUX_output(ALUres_PC_sel_MUX_output));                       
     
                            
                            
@@ -286,14 +321,17 @@ module toplevel1(
                    
     MEM_WB_PiplelineReg i14(.clk(clk), .rst_n(rst_n), .memToReg_in(memToReg_MEM), .regWrite_in(regWrite_MEM),
                             .rd_in(rd_MEM), .dmem_read_data_in(dmem_read_data_MEM), .ALU_result_in(ALU_result_MEM),
+                            .jump_in(jump_MEM), .PC_in(PC_MEM),
                             .memToReg_out(memToReg_WB), .regWrite_out(regWrite_WB), .rd_out(rd_WB), 
-                            .dmem_read_data_out(dmem_read_data_WB), .ALU_result_out(ALU_result_WB));
+                            .dmem_read_data_out(dmem_read_data_WB), .ALU_result_out(ALU_result_WB),
+                            .jump_out(jump_WB), .PC_out(PC_WB));
                             
                             
                             
                             
-    memToReg_Mux i15(.ALU_result(ALU_result_WB), .dmem_read_data(dmem_read_data_WB), .memToReg(memToReg_WB),
-                     .memToReg_Mux_output(memToReg_Mux_output)); 
+    memToReg_Mux i15(.ALU_result(ALU_result_WB), .dmem_read_data(dmem_read_data_WB),
+                     .PC(PC_WB), .jump(jump_WB), .memToReg(memToReg_WB),
+                     .memToReg_Mux_output(memToReg_Mux_output));
     
     
 endmodule

@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 07.11.2020 07:32:14
+// Create Date: 11.11.2020 15:52:07
 // Design Name: 
-// Module Name: ProgramCounter_Register
+// Module Name: PC_Select_MUX
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,28 +20,27 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ProgramCounter_Register(
-    //input clk,
-    input clk_gate,
-    input rst_n,
-    input [31 : 0] PC_next,
-    output reg [31:0] PC
+module PC_Select_MUX(
+    input [31:0] PC_curr,
+    input [31:0] immData,
+    input [1:0] PCSrc,
+    output reg [31:0] PC_next
     );
-    
-    //TODO : Add functionality to modify PC after branch and jump instructions
     
     always@(*)
     begin
-        if(rst_n == 1'b0)
+        if(PCSrc == 2'b00)
         begin
-            PC <= 0;
+            PC_next <= PC_curr + 4;
         end
         
-        else if(clk_gate == 1'b1)
+        else if(PCSrc === 2'b01)
         begin
-            //PC <= PC + 4;
-            PC <= PC_next;
+            PC_next <= PC_curr + immData;
         end
+        
+        //else if(PCSrc == 2'b10)
+        //PC_next <= output of branch predictor
     end
     
 endmodule

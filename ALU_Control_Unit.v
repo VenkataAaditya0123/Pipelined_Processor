@@ -46,17 +46,17 @@ module ALU_Control_Unit(
             operation <= 4'b0000; //default operation is AND
         end
         
-        else if(ALUop == 2'b00)
+        else if(ALUop == 2'b00) //lw, sw
         begin
             operation <= 4'b0010; //ADD
         end
         
-        else if(ALUop == 2'b01)
+        else if(ALUop == 2'b01) //beq
         begin
-            operation <= 4'b0110;
+            operation <= 4'b0110; //SUB
         end
         
-        else if(ALUop == 2'b10)
+        else if(ALUop == 2'b10) //R-type
         begin
             if(funct7 == 7'b0000000)
             begin
@@ -74,6 +74,21 @@ module ALU_Control_Unit(
                 begin
                     operation <= 4'b0001; //OR
                 end
+                
+                else if(funct3 == 3'b001)
+                begin
+                    operation <= 4'b0111; //SLL
+                end
+                
+                else if(funct3 == 3'b101)
+                begin
+                    operation <= 4'b1000; //SRL
+                end
+                
+                else if(funct3 == 3'b100)
+                begin
+                    operation <= 4'b1010; //XOR
+                end
             end
             
             else if(funct7 == 7'b0100000)
@@ -81,6 +96,14 @@ module ALU_Control_Unit(
                 if(funct3 == 3'b000)
                 begin
                     operation <= 4'b0110; //SUB
+                end
+            end
+            
+            else if(funct7 == 7'b0100000)
+            begin
+                if(funct3 == 3'b101)
+                begin
+                    operation <= 4'b1001; //SRA
                 end
             end
             

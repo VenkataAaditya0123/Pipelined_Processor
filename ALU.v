@@ -53,12 +53,30 @@ module ALU(
             result <= operand1 + operand2;
         end
         
-        else if(operation == 4'b0110)
+        else if(operation == 4'b0110) //SUB
         begin
             result <= operand1 - operand2;
         end
         
-        //else if() --->>> add other operations
+        else if(operation == 4'b0111) //SLL
+        begin
+            result <= operand1 << operand2;
+        end
+        
+        else if(operation == 4'b1000) //SRL
+        begin
+            result <= operand1 >> operand2;
+        end
+        
+        else if(operation == 4'b1001) //SRA
+        begin
+            result <= operand1 >>> operand2;
+        end
+        
+        else if(operation == 4'b1010) //XOR
+        begin
+            result <= operand1 ^ operand2;
+        end
         
         else
         begin

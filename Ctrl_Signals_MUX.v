@@ -39,7 +39,7 @@ module Ctrl_Signals_MUX(
     output memRead_out,
     output memWrite_out,
     output memToReg_out,
-    input regWrite_out
+    output regWrite_out
     );
     
     assign immSel_out = (ctrl_select == 1'b1) ? immSel_in : 2'b00;

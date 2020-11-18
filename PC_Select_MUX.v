@@ -24,6 +24,7 @@ module PC_Select_MUX(
     input [31:0] PC_curr,
     input [31:0] immData,
     input [1:0] PCSrc,
+    input prediction,
     output reg [31:0] PC_next
     );
     
@@ -39,8 +40,18 @@ module PC_Select_MUX(
             PC_next <= PC_curr + immData;
         end
         
-        //else if(PCSrc == 2'b10)
-        //PC_next <= output of branch predictor
+        else if(PCSrc == 2'b10)
+        begin
+            if(prediction == 1'b1) //TAKEN
+            begin
+                PC_next <= PC_curr + immData;
+            end
+            
+            else //prediction == 1'b0 => NOT TAKEN
+            begin
+                PC_next <= PC_curr + 4;
+            end
+        end
     end
     
 endmodule

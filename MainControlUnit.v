@@ -121,7 +121,7 @@ module MainControlUnit(
             PCSrc <= 2'b10;
         end
         
-        else if(opcode == 7'b1101111) //J-type --->>> lmp
+        else if(opcode == 7'b1101111) //J-type --->>> jal
         begin
             immSel <= 2'b11;
             ALUop <= 2'b00; //2'bXX

@@ -144,13 +144,20 @@ module toplevel1(
     
     wire [31 : 0] ALUres_PC_sel_MUX_output;
     
+    wire prediction_ID;
+    
+    wire prediction_EX;
+    
+    wire [31 : 0] actual_PC_next;
+    
     //wire clk_mod = clk & clk_gate;
     
     
     
     //ProgramCounter_Register i1(.clk(clk), .rst_n(rst_n), .PC(PC));
     //ProgramCounter_Register i1(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .PC_next(PC_next), .PC(PC));
-    ProgramCounter_Register i1(.clk_gate(clk_gate), .rst_n(rst_n), .PC_next(PC_next), .PC(PC));
+    //ProgramCounter_Register i1(.clk_gate(clk_gate), .rst_n(rst_n), .PC_next(PC_next), .PC(PC));
+    ProgramCounter_Register i1(.clk_gate(clk_gate), .rst_n(rst_n), .PC_next(actual_PC_next), .PC(PC));
     
     
     InstructionMemory i2(.rst_n(rst_n), .PC(PC), .instrCode(instrCode));
@@ -158,13 +165,23 @@ module toplevel1(
     //IF_ID_PipelineReg i3(.clk(clk), .rst_n(rst_n), .instruction_in(instrCode), .instruction_out(instruction));
     IF_ID_PipelineReg i3(.clk(clk), .clk_gate(clk_gate), .rst_n(rst_n), .instruction_in(instrCode), .PC_in(PC),
                          .instruction_out(instruction), .PC_out(PC_ID));
+                         
+                         
+                         
+    Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .instrCode(instruction), .actual_outcome(ALU_zero), .branch_EX_done(branch_EX),
+                         .prediction(prediction_ID));
+                         
+                         
+                         
+    PC_wrong_pred_PC_next_MUX i24(.PC_beq(PC_EX), .immData_beq(immData_EX), .wrong_prediction( (ALU_zero ^ prediction_EX) & branch_EX ),
+                                  .prediction(prediction_EX), .PC_next(PC_next), .actual_PC_next(actual_PC_next));
     
     
     
     
     Stall_Detection_Control_Unit i19(.IF_ID_rs1(instruction[19 : 15]), .IF_ID_rs2(instruction[24 : 20]), 
-                                     .ID_EX_rd(rd_EX), .ID_EX_memRead(memRead_EX), .clk_gate(clk_gate),
-                                     .contol_signals_select(contol_signals_select));
+                                     .ID_EX_rd(rd_EX), .ID_EX_memRead(memRead_EX), .wrong_prediction( (ALU_zero ^ prediction_EX) & branch_EX ),
+                                     .clk_gate(clk_gate), .contol_signals_select(contol_signals_select));
     
     
     
@@ -204,7 +221,8 @@ module toplevel1(
                     
                     
     //PC_Select_MUX i21(.PC_curr(PC), .immData(immData), .PCSrc(PCSrc), .PC_next(PC_next));
-    PC_Select_MUX i21(.PC_curr(PC_ID), .immData(immData), .PCSrc(PCSrc), .PC_next(PC_next));
+    PC_Select_MUX i21(.PC_curr(PC_ID), .immData(immData), .PCSrc(PCSrc), .prediction(prediction_ID),
+                      .PC_next(PC_next));
                     
                     
                     
@@ -225,12 +243,12 @@ module toplevel1(
                          .jump_in(jump_ctrl_signals_MUX_out), .memRead_in(memRead_ctrl_signals_MUX_out), .memWrite_in(memWrite_ctrl_signals_MUX_out), .memToReg_in(memToReg_ctrl_signals_MUX_out),
                          .regWrite_in(regWrite_ctrl_signals_MUX_out), .read_data1_in(read_data1), .read_data2_in(read_data2),
                          .rs1_in(instruction[19 : 15]), .rs2_in(instruction[24 : 20]), .rd_in(instruction[11 : 7]),
-                         .immData_in(immData), .funct7_in(instruction[31 : 25]), .funct3_in(instruction[14 : 12]), .PC_in(PC_ID),
+                         .immData_in(immData), .funct7_in(instruction[31 : 25]), .funct3_in(instruction[14 : 12]), .PC_in(PC_ID), .prediction_in(prediction_ID),
                          .ALUSrc_out(ALUSrc_EX), .ALUop_out(ALUop_EX), .branch_out(branch_EX), .jump_out(jump_EX),
                          .memRead_out(memRead_EX), .memWrite_out(memWrite_EX), .memToReg_out(memToReg_EX),
                          .regWrite_out(regWrite_EX), .read_data1_out(read_data1_EX), .read_data2_out(read_data2_EX),
                          .rs1_out(rs1_EX), .rs2_out(rs2_EX), .rd_out(rd_EX), .immData_out(immData_EX),
-                         .funct7_out(funct7_EX), .funct3_out(funct3_EX), .PC_out(PC_EX));                     
+                         .funct7_out(funct7_EX), .funct3_out(funct3_EX), .PC_out(PC_EX), .prediction_out(prediction_EX));                     
                          
                          
                          

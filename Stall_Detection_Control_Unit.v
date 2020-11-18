@@ -25,6 +25,7 @@ module Stall_Detection_Control_Unit(
     input [4:0] IF_ID_rs2,
     input [4:0] ID_EX_rd,
     input ID_EX_memRead,
+    input wrong_prediction,
     output reg clk_gate,
     output reg contol_signals_select
     );
@@ -32,6 +33,12 @@ module Stall_Detection_Control_Unit(
     //clk_gate
     always@(*)
     begin
+        //WRONG PREDICTION
+        if(wrong_prediction == 1'b1)
+        begin
+            clk_gate <= 1'b1;
+        end
+    
         //STALL condition
         if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) && (ID_EX_rd != 5'b00000))
         begin
@@ -49,6 +56,12 @@ module Stall_Detection_Control_Unit(
     //contol_signals_select
     always@(*)
     begin
+        //WRONG PREDICTION
+        if(wrong_prediction == 1'b1)
+        begin
+            contol_signals_select <= 1'b0;
+        end
+    
         //STALL condition
         if( ((IF_ID_rs1 == ID_EX_rd) || (IF_ID_rs2 == ID_EX_rd)) && (ID_EX_memRead == 1'b1) && (ID_EX_rd != 5'b00000) )
         begin

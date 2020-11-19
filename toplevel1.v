@@ -168,7 +168,7 @@ module toplevel1(
                          
                          
                          
-    Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .instrCode(instruction), .actual_outcome(ALU_zero), .branch_EX_done(branch_EX),
+    Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .PC_prev(PC_EX), .instrCode(instruction), .actual_outcome(ALU_zero), .branch_EX_done(branch_EX),
                          .prediction(prediction_ID));
                          
                          

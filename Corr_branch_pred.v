@@ -25,6 +25,7 @@
 module Corr_branch_pred(
   //  input clk,
     input [31 : 0] PC,
+    input [31 : 0] PC_prev,
     input rst_n, 
     input [31:0] instrCode,
     input actual_outcome,       //To modify contents
@@ -36,12 +37,18 @@ module Corr_branch_pred(
     integer cnt;
     reg [2:0] branch_index_bits;
     reg [3:0] index;
+    
+    reg [3:0] index_prev;
+    reg [2 : 0] branch_index_bits_prev;
     //reg update;
    always@(PC)
    begin
      branch_index_bits = PC[4:2];
      index = {global_shift_reg,branch_index_bits};   
      prediction = BHT_reg[index][1];
+     
+     branch_index_bits_prev = PC_prev[4 : 2];
+     index_prev = {global_shift_reg,branch_index_bits_prev};
    end
     //assign prediction = BHT_reg[index][1];
    // assign update = actual_outcome;
@@ -57,15 +64,15 @@ module Corr_branch_pred(
         end
         else if(actual_outcome==0 && branch_EX_done)
         begin
-            if(BHT_reg[index]!=2'b00)
-            BHT_reg[index] = BHT_reg[index]-1;
+            if(BHT_reg[index_prev]!=2'b00)
+            BHT_reg[index_prev] = BHT_reg[index_prev]-1;
             global_shift_reg = 0;
          //   update = 1'bx;
         end
         else if(actual_outcome==1 && branch_EX_done)
         begin
-            if(BHT_reg[index]!=2'b11)
-                BHT_reg[index] = BHT_reg[index]+1;
+            if(BHT_reg[index_prev]!=2'b11)
+                BHT_reg[index_prev] = BHT_reg[index_prev]+1;
             global_shift_reg = 1;
            // update = 1'bx;
         end

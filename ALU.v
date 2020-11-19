@@ -78,6 +78,19 @@ module ALU(
             result <= operand1 ^ operand2;
         end
         
+        else if(operation == 4'b1111) //SLT
+        begin
+            if(operand1 < operand2)
+            begin
+                result <= 1;
+            end
+            
+            else
+            begin
+                result <= 0;
+            end
+        end
+        
         else
         begin
             result <= 0;

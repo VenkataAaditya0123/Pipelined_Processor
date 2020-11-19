@@ -35,6 +35,8 @@ module EX_MEM_PipelineReg(
     input memToReg_in,
     input regWrite_in,
     input [31 : 0] PC_in,
+    input prediction_in,
+    input [31 : 0] immData_in,
     output [31:0] PC_plus_X_out,
     output [31:0] ALU_result_out,
     output zero_out,
@@ -46,7 +48,9 @@ module EX_MEM_PipelineReg(
     output memWrite_out,
     output memToReg_out,
     output regWrite_out,
-    output [31 : 0] PC_out
+    output [31 : 0] PC_out,
+    output prediction_out,
+    output [31 : 0] immData_out
     );
     
     reg [31 : 0] PC_plus_X_save;
@@ -61,6 +65,8 @@ module EX_MEM_PipelineReg(
     reg memToReg_save;
     reg regWrite_save;
     reg [31 : 0] PC_save;
+    reg prediction_save;
+    reg [31 : 0] immData_save;
     
     assign PC_plus_X_out = PC_plus_X_save;
     assign ALU_result_out = ALU_result_save;
@@ -74,6 +80,8 @@ module EX_MEM_PipelineReg(
     assign memToReg_out = memToReg_save;
     assign regWrite_out = regWrite_save;
     assign PC_out = PC_save;
+    assign prediction_out = prediction_save;
+    assign immData_out = immData_save;
     
     always@(posedge clk)
     begin
@@ -92,6 +100,8 @@ module EX_MEM_PipelineReg(
             memToReg_save <= 1'b0;
             regWrite_save <= 1'b0;
             PC_save <= 0;
+            prediction_save <= 1'b0;
+            immData_save <= 0;
         end
         
         else
@@ -108,6 +118,8 @@ module EX_MEM_PipelineReg(
             memToReg_save <= memToReg_in;
             regWrite_save <= regWrite_in;
             PC_save <= PC_in;
+            prediction_save <= prediction_in;
+            immData_save <= immData_in;
         end
         
     end

@@ -150,6 +150,27 @@ module toplevel1(
     
     wire [31 : 0] actual_PC_next;
     
+    wire prediction_MEM;
+    
+    
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_branch_out;
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_jump_out;
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_memRead_out;
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_memWrite_out;
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_memToReg_out;
+    
+    wire Ctrl_Signals_MUX_EX_to_MEM_regWrite_out;
+    
+    
+    
+    
+    wire [31 : 0] immData_MEM;
+    
     //wire clk_mod = clk & clk_gate;
     
     
@@ -168,20 +189,39 @@ module toplevel1(
                          
                          
                          
-    Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .PC_prev(PC_EX), .instrCode(instruction), .actual_outcome(ALU_zero), .branch_EX_done(branch_EX),
+    /*Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .PC_prev(PC_EX), .instrCode(instruction), .actual_outcome(ALU_zero), .branch_EX_done(branch_EX),
+                         .prediction(prediction_ID));*/
+                         
+                         
+    Corr_branch_pred i23(.rst_n(rst_n), .PC(PC_ID), .PC_prev(PC_MEM), .instrCode(instruction), .actual_outcome(zero_MEM), .branch_EX_done(branch_MEM),
                          .prediction(prediction_ID));
                          
                          
                          
-    PC_wrong_pred_PC_next_MUX i24(.PC_beq(PC_EX), .immData_beq(immData_EX), .wrong_prediction( (ALU_zero ^ prediction_EX) & branch_EX ),
-                                  .prediction(prediction_EX), .PC_next(PC_next), .actual_PC_next(actual_PC_next));
+                         
+                         
+                         
+    /*PC_wrong_pred_PC_next_MUX i24(.PC_beq(PC_EX), .immData_beq(immData_EX), .wrong_prediction( (ALU_zero ^ prediction_EX) & branch_EX ),
+                                  .prediction(prediction_EX), .PC_next(PC_next), .actual_PC_next(actual_PC_next));*/
+                                  
+    PC_wrong_pred_PC_next_MUX i24(.PC_beq(PC_MEM), .immData_beq(immData_MEM), .wrong_prediction( (zero_MEM ^ prediction_MEM) & branch_MEM ),
+                                  .prediction(prediction_MEM), .PC_next(PC_next), .actual_PC_next(actual_PC_next));
+                                  
+                                  
     
     
     
     
-    Stall_Detection_Control_Unit i19(.IF_ID_rs1(instruction[19 : 15]), .IF_ID_rs2(instruction[24 : 20]), 
+    /*Stall_Detection_Control_Unit i19(.IF_ID_rs1(instruction[19 : 15]), .IF_ID_rs2(instruction[24 : 20]), 
                                      .ID_EX_rd(rd_EX), .ID_EX_memRead(memRead_EX), .wrong_prediction( (ALU_zero ^ prediction_EX) & branch_EX ),
+                                     .clk_gate(clk_gate), .contol_signals_select(contol_signals_select));*/
+                                     
+    Stall_Detection_Control_Unit i19(.IF_ID_rs1(instruction[19 : 15]), .IF_ID_rs2(instruction[24 : 20]), 
+                                     .ID_EX_rd(rd_EX), .ID_EX_memRead(memRead_EX), .wrong_prediction( (zero_MEM ^ prediction_MEM) & branch_MEM ),
                                      .clk_gate(clk_gate), .contol_signals_select(contol_signals_select));
+    
+    
+    
     
     
     
@@ -299,6 +339,19 @@ module toplevel1(
             
             
     PC_plus_X_adder i11(.PC(PC), .immData(immData_EX), .PC_plus_X(PC_plus_X)); //can be removed -> WRONG PC is being fed
+    
+    
+    
+    
+    
+    Ctrl_Signals_MUX_EX_to_MEM i25(.branch_in(branch_EX), .jump_in(jump_EX), .memRead_in(memRead_EX), .memWrite_in(memWrite_EX),
+                                   .memToReg_in(memToReg_EX), .regWrite_in(regWrite_EX),
+                                   .branch_out(Ctrl_Signals_MUX_EX_to_MEM_branch_out), .jump_out(Ctrl_Signals_MUX_EX_to_MEM_jump_out),
+                                   .memRead_out(Ctrl_Signals_MUX_EX_to_MEM_memRead_out), .memWrite_out(Ctrl_Signals_MUX_EX_to_MEM_memWrite_out),
+                                   .memToReg_out(Ctrl_Signals_MUX_EX_to_MEM_memToReg_out), .regWrite_out(Ctrl_Signals_MUX_EX_to_MEM_regWrite_out),
+                                   .wrong_prediction( (zero_MEM ^ prediction_MEM) & branch_MEM ));
+    
+    
             
             
     
@@ -311,14 +364,27 @@ module toplevel1(
                            .memRead_out(memRead_MEM), .memWrite_out(memWrite_MEM), .memToReg_out(memToReg_MEM), 
                            .regWrite_out(regWrite_MEM));*/
                            
-    EX_MEM_PipelineReg i12(.clk(clk), .rst_n(rst_n), .PC_plus_X_in(PC_plus_X), .ALU_result_in(ALU_result), 
+    /*EX_MEM_PipelineReg i12(.clk(clk), .rst_n(rst_n), .PC_plus_X_in(PC_plus_X), .ALU_result_in(ALU_result), 
                            .zero_in(ALU_zero), .read_data2_in(MUX_3_1_output_2), .rd_in(rd_EX), .branch_in(branch_EX),
                            .jump_in(jump_EX), .memRead_in(memRead_EX), .memWrite_in(memWrite_EX), 
-                           .memToReg_in(memToReg_EX), .regWrite_in(regWrite_EX), .PC_in(PC_EX), 
+                           .memToReg_in(memToReg_EX), .regWrite_in(regWrite_EX), .PC_in(PC_EX), .prediction_in(prediction_EX),
                            .PC_plus_X_out(PC_plus_X_MEM), .ALU_result_out(ALU_result_MEM), .zero_out(zero_MEM),
                            .read_data2_out(read_data2_MEM), .rd_out(rd_MEM), .branch_out(branch_MEM), .jump_out(jump_MEM),
                            .memRead_out(memRead_MEM), .memWrite_out(memWrite_MEM), .memToReg_out(memToReg_MEM), 
-                           .regWrite_out(regWrite_MEM), .PC_out(PC_MEM));
+                           .regWrite_out(regWrite_MEM), .PC_out(PC_MEM), .prediction_out(prediction_MEM));*/
+                           
+                           
+                           
+    EX_MEM_PipelineReg i12(.clk(clk), .rst_n(rst_n), .PC_plus_X_in(PC_plus_X), .ALU_result_in(ALU_result), 
+                           .zero_in(ALU_zero), .read_data2_in(MUX_3_1_output_2), .rd_in(rd_EX), .branch_in(Ctrl_Signals_MUX_EX_to_MEM_branch_out),
+                           .jump_in(Ctrl_Signals_MUX_EX_to_MEM_jump_out), .memRead_in(Ctrl_Signals_MUX_EX_to_MEM_memRead_out), .memWrite_in(Ctrl_Signals_MUX_EX_to_MEM_memWrite_out), 
+                           .memToReg_in(Ctrl_Signals_MUX_EX_to_MEM_memToReg_out), .regWrite_in(Ctrl_Signals_MUX_EX_to_MEM_regWrite_out), .PC_in(PC_EX), .prediction_in(prediction_EX), .immData_in(immData_EX),
+                           .PC_plus_X_out(PC_plus_X_MEM), .ALU_result_out(ALU_result_MEM), .zero_out(zero_MEM),
+                           .read_data2_out(read_data2_MEM), .rd_out(rd_MEM), .branch_out(branch_MEM), .jump_out(jump_MEM),
+                           .memRead_out(memRead_MEM), .memWrite_out(memWrite_MEM), .memToReg_out(memToReg_MEM), 
+                           .regWrite_out(regWrite_MEM), .PC_out(PC_MEM), .prediction_out(prediction_MEM), .immData_out(immData_MEM));
+    
+    
                            
                            
                            

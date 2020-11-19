@@ -32,7 +32,6 @@ module ALU_Control_Unit(
     //operation = 4'b0001 => OR
     //operation = 4'b0010 => ADD
     //operation = 4'b0110 => SUB
-    //operation = 4'b1111 => SLT
     
     //TODO : add further operations
     

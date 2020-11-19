@@ -62,17 +62,27 @@ module Corr_branch_pred(
             end
             global_shift_reg <= 1'b0;   //Initially 0
         end
-        else if(actual_outcome==0 && branch_EX_done)
+        
+        else if(actual_outcome == 1'b0 && branch_EX_done == 1'b1)
         begin
-            if(BHT_reg[index_prev]!=2'b00)
-            BHT_reg[index_prev] = BHT_reg[index_prev]-1;
+            if(BHT_reg[index_prev] != 2'b00)
+            begin
+                BHT_reg[index_prev] = BHT_reg[index_prev]-1;
+                $display("1 %d %d", PC_prev, BHT_reg[index_prev]);
+            end
+            
             global_shift_reg = 0;
          //   update = 1'bx;
         end
-        else if(actual_outcome==1 && branch_EX_done)
+        
+        else if(actual_outcome == 1'b1 && branch_EX_done == 1'b1)
         begin
-            if(BHT_reg[index_prev]!=2'b11)
+            if(BHT_reg[index_prev] != 2'b11)
+            begin
                 BHT_reg[index_prev] = BHT_reg[index_prev]+1;
+                $display("2 %d %d", PC_prev, BHT_reg[index_prev]);
+            end
+            
             global_shift_reg = 1;
            // update = 1'bx;
         end

@@ -1,0 +1,50 @@
+13
+04
+44
+01
+93
+84
+44
+0B
+63
+0E
+94
+00
+33
+2E
+94
+00
+63
+06
+0E
+00
+B3
+84
+84
+40
+6F
+F0
+1F
+FF
+33
+04
+94
+40
+6F
+F0
+9F
+FE
+23
+A0
+82
+00
+addi s0,s0,20
+addi s1,s1,180
+L1: beq s0,s1,EXIT
+slt t3,s0,s1
+beq t3,zero,L2
+sub s1,s1,s0
+jal zero,L1
+L2: sub s0,s0,s1
+jal zero,L1
+EXIT: sw s0,0(t0)

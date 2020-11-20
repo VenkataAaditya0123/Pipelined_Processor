@@ -1,0 +1,58 @@
+00
+01
+01
+02
+03
+05
+08
+0D
+00
+00
+00
+FF
+63
+8E
+02
+00
+33
+04
+94
+00
+23
+20
+83
+00
+13
+03
+13
+00
+B3
+04
+94
+40
+93
+82
+F2
+FF
+6F
+F0
+9F
+FE
+13
+0E
+4E
+06
+
+
+
+addi t0,t0,8
+addi s0,s0,1
+addi s1,s1,-1
+loop: beq t0,zero,end
+add s0,s0,s1
+sw s0,0(t1)
+addi t1,t1,1
+sub s1,s0,s1
+addi t0,t0,-1
+jal zero,loop
+end: addi t3,t3,100
